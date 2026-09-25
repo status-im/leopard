@@ -115,6 +115,27 @@ endif(ENABLE_OPENMP)
 
 add_library(libleopard STATIC ${LIB_SOURCE_FILES})
 
+# Fork fix (fryorcraken/leopard, for github.com/fryorcraken/logos-android-wrap-poc):
+# LeopardCommon.h's `#if defined(ANDROID) || defined(IOS) -> #define
+# LEO_TARGET_MOBILE` conflates "is this Android" with "is this ARM" -- it
+# assumes Android only ever means ARM. When cross-compiling for an
+# Android x86/x86_64 NDK target, LEO_TARGET_MOBILE ends up set (the build
+# passes -DANDROID) but neither HAVE_ARM_NEON_H nor LEO_USE_SSE2NEON is
+# defined, so LeopardCommon.h's LEO_M128 falls back to a plain uint64_t and
+# never includes <emmintrin.h> -- yet LeopardCommon.cpp still calls
+# _mm_xor_si128/_mm_loadu_si128/_mm_storeu_si128 unconditionally, which
+# fails to compile ("use of undeclared identifier '_mm_loadu_si128'").
+# Undefine ANDROID for x86/x86_64 NDK targets specifically, so
+# LEO_TARGET_MOBILE is never set on this path and the ordinary
+# (non-mobile) <emmintrin.h>/__m128i codepath is used instead, matching
+# what LeopardCommon.cpp actually calls. -msse2 ensures the intrinsics are
+# available regardless of -march=native's cross-compile behavior (see
+# CMAKE_CXX_FLAGS above, guarded by COMPILER_SUPPORTS_MARCH_NATIVE, which
+# the Android build already passes as FALSE on the command line).
+if(CMAKE_CXX_COMPILER MATCHES "i686-linux-android|x86_64-linux-android")
+    target_compile_options(libleopard PRIVATE -msse2 -UANDROID)
+endif()
+
 add_executable(bench_leopard ${BENCH_SOURCE_FILES})
 target_link_libraries(bench_leopard libleopard)
 

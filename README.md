@@ -1,3 +1,15 @@
+> **This is a fork.** `fryorcraken/leopard` fixes an Android x86/x86_64 NDK
+> cross-compile failure (`CMakeLists.txt`: `_mm_loadu_si128` "undeclared
+> identifier" — `LeopardCommon.h` conflates "Android" with "ARM," so an
+> x86_64 Android target never gets the SSE2 intrinsics header it still
+> calls into) for
+> [`logos-android-wrap-poc`](https://github.com/fryorcraken/logos-android-wrap-poc)
+> (via `fryorcraken/nim-leopard`, itself a fork of
+> [`status-im/nim-leopard`](https://github.com/status-im/nim-leopard)
+> pointing its `vendor/leopard` submodule at this fork instead of upstream).
+> Everything else is unmodified upstream code. Upstream:
+> [`status-im/leopard`](https://github.com/status-im/leopard).
+
 # Leopard-RS
 ## MDS Reed-Solomon Erasure Correction Codes for Large Data in C
 
