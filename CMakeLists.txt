@@ -115,7 +115,10 @@ endif(ENABLE_OPENMP)
 
 add_library(libleopard STATIC ${LIB_SOURCE_FILES})
 
-add_executable(bench_leopard ${BENCH_SOURCE_FILES})
-target_link_libraries(bench_leopard libleopard)
+option(LEOPARD_BUILD_TESTS "Build the benchmark and experiment executables" ON)
+if(LEOPARD_BUILD_TESTS)
+    add_executable(bench_leopard ${BENCH_SOURCE_FILES})
+    target_link_libraries(bench_leopard libleopard)
 
-add_executable(experiment_leopard ${EXPERIMENT_SOURCE_FILES})
+    add_executable(experiment_leopard ${EXPERIMENT_SOURCE_FILES})
+endif()
